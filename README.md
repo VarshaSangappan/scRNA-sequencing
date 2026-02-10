@@ -4,7 +4,9 @@ Complete single-cell RNA-seq workflow for **40 kidney samples** (DKD patients vs
 
 ## Workflow
 
-flowchart 
+## Workflow
+```mermaid
+flowchart TD
     A[GSE279086<br/>40 kidney samples] --> B[Seurat Object<br/>QC Metrics]
     B --> C[QC Filter<br/>Violin Plots]
     C --> D[LogNorm + PCA<br/>2000 HVFs]
