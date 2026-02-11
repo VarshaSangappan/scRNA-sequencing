@@ -6,10 +6,11 @@ Complete workflow for **40 kidney samples** (DKD vs healthy) from NCBI GEO GSE27
 
 ## 🧬 Workflow (4 Files)
 
-01_seurat.Rmd → Create object + initial QC 
-02_qc_umap.Rmd → Deep QC + filtering + umap + Harmony clustering
-03_python.Rmd → h5AD conversion + CellTypist annotation
-04_deg_pathway.Rmd → DEG analysis + Reactome GSEA
+- `01_seurat.Rmd` - Create object + initial QC
+- `02_qc_umap.Rmd` - Deep QC + filtering + Harmony clustering  
+- `03_python.Rmd` - h5AD conversion + CellTypist annotation
+- `04_deg_pathway.Rmd` - DEG analysis + Reactome GSEA
+
 
 ## 📊 Key Results
 Total:     15k → 12k cells retained (83%)
