@@ -3,7 +3,7 @@
 # -----------------------------------------
 # Install in R using : install.packages("<package>") or Biocmanager::install("<package>")
 #------------------------------------------
-#R Packages 
+#R Packages for QC and umap
 Seurat
 SeuratDisk
 dplyr
@@ -21,6 +21,7 @@ batchelor
 zellkonverter
 SingleCellExperiment
 
+# R packages for DEG and pathway analysis
 clusterProfiler
 ReactomePA
 tidyverse
@@ -29,5 +30,20 @@ dplyr
 ggplot2
 enrichplot
 
+#---------------------------------------------
+#Python packages 
+#---------------------------------------------
+pandas
+anndata
+numpy
+scanpy
+seaborn
+matplotlib
+celltypist
+
+#---------------------------------------------
+#MODEL
+#-------------------------------------------
+Adult_human_kidney.pkl
 
 
