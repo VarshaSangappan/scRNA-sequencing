@@ -1,1 +1,33 @@
+# -----------------------------------------
+# R and PYTHON PACKAGES FOR SINGLE CELL RNA ANALYSIS 
+# -----------------------------------------
+# Install in R using : install.packages("<package>") or Biocmanager::install("<package>")
+#------------------------------------------
+#R Packages 
+Seurat
+SeuratDisk
+dplyr
+R.utils  
+ggplot2
+ggExtra
+RColorBrewer
+openxlsx
+dplyr
+scales
+HGNChelper
+dittoSeq
+harmony
+batchelor
+zellkonverter
+SingleCellExperiment
+
+clusterProfiler
+ReactomePA
+tidyverse
+org.Hs.eg.db
+dplyr
+ggplot2
+enrichplot
+
+
 
