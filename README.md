@@ -7,7 +7,7 @@ Complete workflow for **40 kidney samples** (DKD vs healthy) from NCBI GEO GSE27
 ## 🧬 Workflow (4 Files)
 - `01_seurat.Rmd` - Create Seurat object 
 - `02_qc_umap.Rmd` -  QC + filtering + umap + Harmony clustering
-- `03_python.Rmd` - CellTypist annotation + majority voting
+- `03_celltypist.ipynb` - CellTypist annotation + majority voting
 - `04_deg_pathway.Rmd` - DEG analysis + Reactome GSEA
 
 ## 📊 Key Results
