@@ -1,0 +1,254 @@
+---
+title: "Batchcorrection"
+output: html_document
+date: "2026-02-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r Load again the Filtered Seurat Object}
+seurat_filtered <- readRDS(file = paste0(outputDir, "02_GSE279086_seurat_qc_filtered.rds"))
+```
+
+
+```{r Standard workflow for normalization and scaling}
+cat("Normalizing data using LogNormalize method (scale factor = 10,000)...\n")
+seurat_processed <- NormalizeData(seurat_filtered,
+                                 normalization.method = "LogNormalize")  # What percentage of total RNA does each gene contribute in this cell?
+
+seurat_processed <- FindVariableFeatures(seurat_processed, selection.method = "vst", nfeatures = 2500)
+seurat_processed <- ScaleData(seurat_processed) 
+seurat_processed <- RunPCA(seurat_processed, dims=1:100, npcs = 100)
+```
+
+```{r Load again the Filtered Seurat Object}
+seurat_filtered <- readRDS(file = paste0(outputDir, "02_GSE279086_seurat_qc_filtered.rds"))
+```
+
+
+```{r Standard workflow for normalization and scaling}
+cat("Normalizing data using LogNormalize method (scale factor = 10,000)...\n")
+seurat_processed <- NormalizeData(seurat_filtered,
+                                 normalization.method = "LogNormalize")  # What percentage of total RNA does each gene contribute in this cell?
+
+seurat_processed <- FindVariableFeatures(seurat_processed, selection.method = "vst", nfeatures = 2500)
+seurat_processed <- ScaleData(seurat_processed) 
+seurat_processed <- RunPCA(seurat_processed, dims=1:100, npcs = 100)
+```
+
+```{r Save Unintegrated Seurat Object}
+saveRDS(seurat_processed, file = paste0(outputDir,"03_GSE279086_seurat_pca_umap.rds"))
+#
+
+merged = JoinLayers(seurat_processed) 
+sce <- as.SingleCellExperiment(merged, assay = "RNA")
+
+dim(sce)
+assayNames(sce)
+reducedDimNames(sce)
+head(colData(sce),2)
+
+h5seurat_name <- "03_GSE279086_seurat_pca_umap.h5seurat"
+h5ad_name <- "03_GSE279086_seurat_pca_umap.h5ad"
+
+SaveH5Seurat(
+  object = seurat_processed,
+  filename = file.path(outputDir, h5seurat_name),
+  overwrite = TRUE,
+  version = "3"
+)
+
+writeH5AD(sce, file = paste0(outputDir, "03_GSE279086_seurat_pca_umap.h5ad"))
+```
+
+```{r Run Harmony & Perform Clustering on Harmony integrated data}
+harmony_processed <- RunHarmony(seurat_processed, c("Sample"), plot_convergence = TRUE)
+
+harmony_processed <- RunUMAP(harmony_processed, reduction = "harmony", dims = 1:50)
+
+harmony_processed <- FindNeighbors(harmony_processed, reduction = "harmony", dims = 1:50, graph.name = "harmony_nn")
+
+harmony_processed <- FindClusters(harmony_processed, graph.name = "harmony_nn", resolution = 0.8, group.name = "Harmony_clusters")
+#found 22 clusters
+
+saveRDS(harmony_processed, file = paste0(outputDir,"04_GSE279086_harmony_corrected.rds"))
+#harmony_processed <- readRDS(file = paste0(outputDir, "04_GSE279086_harmony_corrected.rds"))
+
+merged1 = JoinLayers(harmony_processed) 
+sce_harmony <- as.SingleCellExperiment(merged1, assay = "RNA")
+
+dim(sce_harmony)
+assayNames(sce_harmony)
+reducedDimNames(sce_harmony)
+head(colData(sce_harmony),2)
+
+
+h5seurat_name1 <- "04_GSE279086_harmony_corrected.h5seurat"
+h5ad_name1 <- "04_GSE279086_harmony_corrected.h5ad"
+
+SaveH5Seurat(
+  object = harmony_processed,
+  filename = file.path(outputDir, h5seurat_name1),
+  overwrite = TRUE,
+  version = "3"
+)
+
+writeH5AD(sce_harmony, file = paste0(outputDir,  "04_GSE279086_harmony_corrected.h5ad"))
+```
+
+```{r Dimention reduction plot on PCA}
+p <- DimPlot(seurat_processed, reduction = "umap", group.by = "Sample") + ggtitle("Uncorrected") +  NoLegend()
+  ggtitle("Uncorrected")
+ggsave(filename = file.path(plotDir, "BENCHMARKING_GSE279086_RawPCA_sample.png"), width = 7, height = 6, dpi = 600)
+p
+
+p <-DimPlot(seurat_processed, reduction = "umap", group.by = "Condition") +
+  ggtitle("Uncorrected")
+ggsave(filename = file.path(plotDir, "BENCHMARKING_GSE279086_RawPCA_condition.png"), width = 8, height = 6, dpi = 600)
+p
+```
+
+```{r}
+#harmony_processed <- RunUMAP(harmony_processed, reduction = "harmony", dims = 1:30)
+p2 <-DimPlot(harmony_processed, reduction = "umap", group.by = "Condition") + ggtitle("Harmony") 
+ggsave(filename = file.path(plotDir, "BENCHMARKING_GSE279086_Harmony_condition.png"), width = 8, height = 6, dpi = 600)
+p2
+
+p <- DimPlot(harmony_processed, reduction = "umap", group.by = "Sample") + ggtitle("Harmony") +  NoLegend()
+ggsave(filename = file.path(plotDir, "BENCHMARKING_GSE279086_Harmony_sample.png"), width = 7, height = 6, dpi = 600)
+p
+
+umap_hcoords <- Embeddings(harmony_processed, "umap")
+write.csv(umap_hcoords, file="GSE279086_umap_coordinates.csv")
+write.csv(
+  umap_hcoords,
+  file = "C:/Users/VARSHA/Documents/rna_seq/GSE279086/GSE279086_umap_coordinates.csv"
+)
+
+```
+
+``` {r Combine Bar Plot}
+library(ggplot2)
+
+compute_knn_batch_mixing <- function(
+    seu,
+    batch_var,
+    reduction = "pca",
+    dims = 1:50,
+    k = 20
+){
+  
+  
+  if (!batch_var %in% colnames(seu@meta.data)) {
+    stop(paste0("Metadata column '", batch_var, "' not found in seu@meta.data"))
+  }
+  
+  if (!reduction %in% Reductions(seu)) {
+    message("[INFO] PCA not found. Running Normalize → HVG → Scale → PCA")
+    seu <- NormalizeData(seu, verbose = FALSE)
+    seu <- FindVariableFeatures(seu, selection.method = "vst", nfeatures = 3000)
+    seu <- ScaleData(seu, verbose = FALSE)
+    seu <- RunPCA(seu, npcs = max(dims), verbose = FALSE)
+  }
+  
+  emb <- Embeddings(seu, reduction = reduction)[, dims, drop = FALSE]
+  nn  <- FNN::get.knn(emb, k = k)$nn.index
+  labs <- seu@meta.data[[batch_var]]
+  
+  same <- sapply(seq_len(nrow(nn)), function(i){
+    mean(labs[nn[i,]] == labs[i], na.rm = TRUE)
+  })
+  
+  df <- data.frame(batch = labs, frac_same_batch = same)
+  aggregate(frac_same_batch ~ batch, df, mean)
+}
+
+plot_knn_batch_mixing <- function(mix_df){
+  ggplot(mix_df, aes(x = batch, y = frac_same_batch)) +
+    geom_col(fill = "steelblue") +
+    labs(
+      title = "Batch Mixing",
+      x = "Batch",
+      y = "Mean same-batch fraction (higher = stronger batch effect)"
+    ) +
+    theme_minimal(base_size = 12)
+}
+
+
+batch_column <- "Sample"
+
+mix_df <- compute_knn_batch_mixing(
+  seu       = seurat_processed,             
+  batch_var = batch_column,
+  reduction = "pca",
+  dims      = 1:50,
+  k         = 20
+)
+
+mix_df_harmony <- compute_knn_batch_mixing(
+  seu       = harmony_processed,
+  batch_var = batch_column,
+  reduction = "harmony",
+  dims      = 1:50,
+  k         = 20
+)
+
+
+mix_df_combined <- rbind(mix_df, mix_df_harmony)
+
+
+mix_df_combined1 <- rbind(
+  transform(mix_df, Status = "Before"),
+  transform(mix_df_harmony, Status = "Harmony")
+)
+```
+
+
+
+```{r Final Plot}
+batch_cor_plot <- ggplot(mix_df_combined1, aes(x = batch, y = frac_same_batch, fill = Status)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  labs(
+    title = "Batch Mixing",
+    x = "Samples",
+    y = "Mean same-batch fraction (higher = stronger batch effect)"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Before" = "#00CED1",     # turquoise
+      "Harmony" = "#9370DB"     # new purple shade (example 3rd color)
+    )
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.title = element_blank(),
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  )
+
+batch_cor_plot
+
+ggsave(filename = paste0(plotDir,"batch_correction_barplot_combined.png"), plot = batch_cor_plot, width = 23, height = 8, dpi = 300)
+```

@@ -1,0 +1,513 @@
+---
+title: "Seurat_to_QC"
+output: html_document
+date: "2026-02-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r define the directories}
+inputDir <- "~/GSE279086/bonus/input/"
+dir.create(inputDir, recursive = TRUE, showWarnings = FALSE)
+outputDir <- "~/GSE279086/bonus/output/"
+dir.create(outputDir, recursive = TRUE, showWarnings = FALSE)
+plotDir <- "~/GSE279086/bonus/plots/"
+dir.create(plotDir, recursive = TRUE, showWarnings = FALSE)
+```
+
+
+```{r load the packages}
+library(Seurat)
+library(SeuratDisk)
+library(dplyr)
+library(R.utils)  
+library(ggplot2)
+library(ggExtra)
+library(RColorBrewer)
+library(openxlsx)
+library(dplyr)
+library(scales)
+library(HGNChelper)
+library(dittoSeq)
+library(harmony)
+library(batchelor)
+library(zellkonverter)
+library(SingleCellExperiment)
+
+```
+
+
+# This chunk looks inside a folder (input) and finds all files that contain single-cell data saved as Seurat objects (.rds files). Each of these files corresponds to one sample. It then loads all these Seurat objects into R and stores them together in a list, so that multiple samples can be handled at once. After loading, each Seurat object is given a meaningful name (usually based on sample) so that it is easy to identify which object belongs to which sample. Finally, it prints the names to confirm that all samples were loaded correctly.
+```{r Read all the individual seurat objects}
+rds_files <- list.files(inputDir, pattern = "_seurat\\.rds$", full.names = TRUE)
+seurat_list <- lapply(rds_files, readRDS)
+names(seurat_list) <- gsub("_seurat\\.rds$", "", basename(rds_files))
+print(names(seurat_list))
+```
+
+
+
+```{r}
+sapply(seurat_list, function(obj) {
+  sum(duplicated(rownames(GetAssayData(obj, layer = "counts"))))
+})
+
+# Got 0s in all samples (meaning no duplicate genes are present in any of the samples) and thus no need to run and save clean_seurat_list. Proceed with seurat_list. But because in downstream, we have 'clean_seurat_list' everywhere, we'll do
+
+clean_seurat_list <- seurat_list
+print(names(clean_seurat_list))
+# clean_seurat_list <- lapply(seurat_list, function(obj) {
+#   # Get unique genes from RNA assay
+#   counts_mat <- GetAssayData(obj, layer = "counts")
+#   unique_genes <- !duplicated(rownames(counts_mat))
+#   counts_mat_unique <- counts_mat[unique_genes, ]
+#   obj[["RNA"]] <- CreateAssayObject(counts_mat_unique)
+#   return(obj)
+# })
+```
+
+```{r}
+
+```
+
+```{r Merge all Seurat objects into one}
+# Update orig.ident to GSM IDs inside each Seurat object
+for (s in names(clean_seurat_list)) {
+  clean_seurat_list[[s]]$orig.ident <- s  # s is GSM ID
+}
+head(clean_seurat_list)
+seurat_combined <- merge(clean_seurat_list[[1]], y = clean_seurat_list[-1], add.cell.ids = names(clean_seurat_list))
+unique(seurat_combined$orig.ident)
+
+#setdiff(id_map, names(clean_seurat_list)) # should return 0
+
+saveRDS(seurat_combined, file =  paste0(outputDir,"01_GSE279086_seurat_combined.rds"))
+seurat_combined <- readRDS(file = paste0(outputDir, "01_GSE279086_seurat_combined.rds"))
+
+# Explore Combined Seurat Object}
+class(seurat_combined)            # 'Seurat'
+Assays(seurat_combined)           # (RNA) assays available in the rds
+DefaultAssay(seurat_combined)     # default/active (RNA) assay in the rds
+dim(seurat_combined)              # 28317 genes/features x 181842 cells
+```
+ncol(seurat_combined)
+
+```{creating idmap for each sample}
+
+ id_map <- c(
+   "S_1907_004567" = "GSM8561110",
+  "S_1907_004614" = "GSM8561111",
+  "S_1907_004802" = "GSM8561112",
+  "S_1907_004896" = "GSM8561113",
+  "S_1907_005225" = "GSM8561114",
+  "S_2006_004078" = "GSM8561115",
+  "S_2007_002809" = "GSM8561116",
+  "S_2007_002950" = "GSM8561117",
+  "S_2007_002997" = "GSM8561118",
+  "S_2007_003044" = "GSM8561119",
+  "S_2007_003091" = "GSM8561120",
+  "S_2007_003138" = "GSM8561121",
+  "S_2007_003793" = "GSM8561122",
+  "S_2007_003840" = "GSM8561123",
+  "S_2007_003934" = "GSM8561124",
+  "S_2007_004028" = "GSM8561125",
+  "S_2007_004216" = "GSM8561126",
+  "S_2007_004263" = "GSM8561127",
+  "S_2103_004019" = "GSM8561128",
+  "S_2103_004028" = "GSM8561129",
+  "S_2103_004037" = "GSM8561130",
+  "S_2103_004046" = "GSM8561131",
+  "S_2103_004064" = "GSM8561132",
+  "S_2103_004073" = "GSM8561133",
+  "S_2103_004091" = "GSM8561134",
+  "S_2103_004100" = "GSM8561135",
+  "S_2103_004109" = "GSM8561136",
+  "S_2103_004118" = "GSM8561137",
+  "S_2103_004127" = "GSM8561138",
+  "S_2103_004145" = "GSM8561139",
+  "S_2103_004154" = "GSM8561140",
+  "S_2103_004163" = "GSM8561141",
+  "S_2103_004181" = "GSM8561142",
+  "S_2107_023520" = "GSM8561143",
+  "S_2107_023538" = "GSM8561144",
+  "S_2107_023547" = "GSM8561145",
+  "S_2107_023556" = "GSM8561146",
+  "S_2107_023592" = "GSM8561147",
+  "S_2107_023610" = "GSM8561148",
+  "S_2107_023619" = "GSM8561149"
+)
+```
+
+
+
+# Adding 'Condition' col to the seurat object to do qc plot much better
+
+```{r}
+table(seurat_combined$orig.ident)
+gsm_ids <- unique(seurat_combined$orig.ident)
+lc_nums <- c(112, 118, 125, 126, 127, 130, 131, 134, 138, 144, 146, 149)
+lc_gsms  <- paste0("GSM8561", lc_nums)
+all_nums <- 110:149
+all_gsms <- paste0("GSM8561", all_nums)
+t1d_gsms <- setdiff(all_gsms, lc_gsms)
+gsm_ids <- unique(seurat_combined$orig.ident)
+
+condition_map <- setNames(rep(NA, length(gsm_ids)), gsm_ids)
+
+condition_map[t1d_gsms] <- "T1D"
+condition_map[lc_gsms]  <- "LC"
+
+names(condition_map) <- gsm_ids
+
+# Create cell-level condition vector (drop names!)
+seurat_combined$Condition <- unname(condition_map[seurat_combined$orig.ident])
+
+table(seurat_combined$Condition)
+sum(is.na(seurat_combined$Condition))
+```
+
+
+```{r calculating ribosomal and mitochondrial percent in each }
+head(rownames(seurat_combined), 20)
+seurat_combined[["percent.mt"]] <- PercentageFeatureSet(
+ seurat_combined,
+ pattern = "^MT-"
+)
+
+seurat_combined[["percent.rb"]] <- PercentageFeatureSet(
+ seurat_combined,
+ pattern = "^RPL|^RPS"
+)
+
+colnames(seurat_combined@meta.data)
+
+summary(seurat_combined$percent.mt)
+summary(seurat_combined$percent.rb)
+```
+head(seurat_combined)
+
+#.................Perform QC..............#
+# These parameters define quality control rules that help distinguish real, healthy single cells from empty droplets, dying cells, or technical artifacts.
+```{r}
+study_id <- "GSE279086"
+seurat_combined <- AddMetaData(seurat_combined, metadata = seurat_combined$orig.ident, col.name = "Sample")
+
+save_violin_plots_separate <- function(
+ seurat_obj,
+ plotDir,
+ study_id,
+ features = c("nCount_RNA", "nFeature_RNA", "percent.mt", "percent.rb")
+) {
+
+ if (!dir.exists(plotDir)) {
+ dir.create(plotDir, recursive = TRUE)
+ }
+
+ meta <- seurat_obj@meta.data
+ meta$sample <- as.factor(meta$orig.ident)
+
+ for (feat in features) {
+
+ if (!feat %in% colnames(meta)) {
+ warning(paste("Skipping", feat, "- not found in metadata"))
+ next
+ }
+
+ p <- ggplot(meta, aes(x = sample, y = .data[[feat]])) +
+ geom_violin(trim = TRUE, fill = "steelblue", alpha = 0.7) +
+ geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.6) +
+ labs(
+ title = feat,
+ x = "Sample",
+ y = feat
+ ) +
+ theme_bw(base_size = 14) +
+ theme(
+ axis.text.x = element_text(angle = 45, hjust = 1),
+ plot.title = element_text(hjust = 0.5)
+ )
+
+ ggsave(
+ filename = file.path(
+ plotDir,
+ paste0(study_id, "_preQC_", feat, "_violin.png")
+ ),
+ plot = p,
+ width = 16,
+ height = 9,
+ dpi = 400,
+ bg = "white"
+ )
+ }
+}
+
+save_violin_plots_separate(seurat_combined, plotDir, study_id)
+
+# Scatter plot of nCount vs nFeature with marginal histograms
+density_scatter_plot <- function(seurat_obj, filename){
+ df <- data.frame(
+ log1p_nCount_RNA = log1p(seurat_obj$nCount_RNA),
+ log1p_nFeature_RNA = log1p(seurat_obj$nFeature_RNA),
+ Condition = seurat_obj$Condition
+ )
+ 
+ p <- ggplot(df, aes(x = log1p_nCount_RNA, y = log1p_nFeature_RNA, colour = Condition)) +
+ geom_point(alpha = 0.3, size = 0.5) +
+ theme_minimal() +
+ theme(legend.position.inside = c(0.05, 0.95), legend.justification = c("left", "top"), legend.key.size = unit(0.5, 'cm')) +
+ guides(color = guide_legend(override.aes = list(size = 5))) + # 'size' here controls the symbol size
+ labs(x = "log1p(nCount_RNA)", y = "log1p(nFeature_RNA)")
+ 
+ p <- ggMarginal(p, type = "histogram", fill = "skyblue", bins = 40)
+ ggsave(
+ filename,
+ plot = p,
+ width = 8,
+ height = 10,
+ dpi = 400,
+ bg = "white"
+)
+
+}
+
+density_scatter_plot(seurat_combined, file.path(plotDir, paste0(study_id, "_preQC_density-scatter.png")))
+```
+
+```{r}
+# Remove cells with abnormal total RNA counts; automatically detects outliers
+fil_nCounts <- function(seurat_obj, threshold_mahalanobis){
+ ncounts_data <- as.data.frame(seurat_obj@meta.data$nCount_RNA)
+ colnames(ncounts_data) <- "nCount_RNA"
+ 
+ mahalanobis_dist <- mahalanobis(
+ x = ncounts_data,
+ center = colMeans(ncounts_data),
+ cov = cov(ncounts_data)
+ )
+ 
+ seurat_obj$mahal_dist_nCount <- mahalanobis_dist
+ mahal.fil <- qchisq(threshold_mahalanobis, df = ncol(ncounts_data))
+ message(paste0("Mahalanobis threshold: ", round(mahal.fil, 3)))
+ 
+ cells_to_remove <- rownames(seurat_obj@meta.data)[seurat_obj$mahal_dist_nCount > mahal.fil]
+ message(paste0("Removing ", length(cells_to_remove), " cells (outliers by nCount_RNA)"))
+ 
+ return(subset(seurat_obj, cells = setdiff(colnames(seurat_obj), cells_to_remove)))
+}
+
+# Filter low (empty droplets or poor capture) & high (likely doublets) gene cells
+filter_nFeatures <- function(seurat_obj, min_feat, max_feat, ...) {
+ return(subset(seurat_obj, subset = nFeature_RNA > min_feat & nFeature_RNA < max_feat))
+}
+
+# Filter high mitochondrial RNA 
+filter_mt <- function(seurat_obj, max_mt) {
+ return(subset(seurat_obj, subset = percent.mt < max_mt))
+}
+
+# Filter high ribosomal RNA 
+filter_rb <- function(seurat_obj, max_rb) {
+ return(subset(seurat_obj, subset = percent.rb < max_rb))
+}
+
+```
+
+
+```{r QC thresholds}
+study_id <- "GSE279086"
+min_features <- 200 # A cell must express at least 200 genes to be considered real. <200 --> empty droplets/cause most noise
+max_features <- 7000 # Cells with more than 7000 genes are removed. Extremely high gene counts often indicate doublets
+max_percent_mt <- 15 # Remove cells where >20% of RNA comes from mitochondria
+max_percent_rb <- 10 # Remove cells dominated by ribosomal expression. High rRNA --> low info content/technical bias
+threshold_mahalanobis <- 0.95 # Remove the worst 5% of cells that look abnormal overall (catches subtle outliers)
+
+seurat_filtered <- filter_nFeatures(seurat_combined, min_features, max_features)
+
+seurat_filtered <- filter_mt(seurat_filtered, max_percent_mt)
+
+seurat_filtered <- fil_nCounts(seurat_filtered, threshold_mahalanobis)
+
+seurat_filtered <- filter_rb(seurat_filtered,max_percent_rb)
+
+# Cell counts before QC
+df_pre_qc <- as.data.frame(table(seurat_combined$Sample))
+colnames(df_pre_qc) <- c("Sample_ID", "Cells_Before_QC")
+
+# Cell counts after QC
+df_post_qc <- as.data.frame(table(seurat_filtered$Sample))
+colnames(df_post_qc) <- c("Sample_ID", "Cells_After_QC")
+
+# Merge into final QC table (left join behavior)
+final_qc_table <- merge(
+ df_pre_qc,
+ df_post_qc,
+ by = "Sample_ID",
+ all.x = TRUE
+)
+
+final_qc_table
+total_cells_before_qc <- sum(final_qc_table$Cells_Before_QC, na.rm = TRUE)
+total_cells_after_qc <- sum(final_qc_table$Cells_After_QC, na.rm = TRUE)
+
+total_cells_before_qc
+total_cells_after_qc
+```
+
+```{r Save Summary Table}
+qc_metrics_file <- file.path(outputDir, paste0(study_id, "_QC_metrics.csv"))
+write.csv(final_qc_table, qc_metrics_file, row.names = FALSE)
+cat("Saved QC summary table to:", qc_metrics_file, "\n")
+```
+
+
+```{r}
+study_id <- "GSE279086"
+
+save_violin_plots_separate <- function(
+ seurat_obj,
+ plotDir,
+ study_id,
+ features = c("nCount_RNA", "nFeature_RNA", "percent.mt", "percent.rb")
+) {
+
+ # Ensure output directory exists
+ if (!dir.exists(plotDir)) {
+ dir.create(plotDir, recursive = TRUE)
+ }
+
+ meta <- seurat_obj@meta.data
+ meta$sample <- as.factor(meta$orig.ident)
+
+ for (feat in features) {
+
+ if (!feat %in% colnames(meta)) {
+ warning(paste("Skipping", feat, "- not found in metadata"))
+ next
+ }
+
+ p <- ggplot(meta, aes(x = sample, y = .data[[feat]])) +
+ geom_violin(trim = TRUE, fill = "steelblue", alpha = 0.7) +
+ geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.6) +
+ labs(
+ title = feat,
+ x = "Sample",
+ y = feat
+ ) +
+ theme_bw(base_size = 14) +
+ theme(
+ axis.text.x = element_text(angle = 45, hjust = 1),
+ plot.title = element_text(hjust = 0.5)
+ )
+
+ ggsave(
+ filename = file.path(
+ plotDir,
+ paste0(study_id, "_postQC_", feat, "_violin.png")
+ ),
+ plot = p,
+ width = 16,
+ height = 9,
+ dpi = 400,
+ bg = "white"
+ )
+ }
+}
+
+save_violin_plots_separate(seurat_filtered, plotDir, study_id)
+
+# Scatter plot of nCount vs nFeature with marginal histograms
+density_scatter_plot <- function(seurat_obj, filename){
+ df <- data.frame(
+ log1p_nCount_RNA = log1p(seurat_obj$nCount_RNA),
+ log1p_nFeature_RNA = log1p(seurat_obj$nFeature_RNA),
+ Condition = seurat_obj$Condition
+ )
+ 
+ p <- ggplot(df, aes(x = log1p_nCount_RNA, y = log1p_nFeature_RNA, colour = Condition)) +
+ geom_point(alpha = 0.3, size = 0.5) +
+ theme_minimal() +
+ theme(legend.position.inside = c(0.05, 0.95), legend.justification = c("left", "top"), legend.key.size = unit(0.5, 'cm')) +
+ guides(color = guide_legend(override.aes = list(size = 5))) + # 'size' here controls the symbol size
+ labs(x = "log1p(nCount_RNA)", y = "log1p(nFeature_RNA)")
+ 
+ p <- ggMarginal(p, type = "histogram", fill = "skyblue", bins = 40)
+ ggsave(
+ filename,
+ plot = p,
+ width = 8,
+ height = 10,
+ dpi = 400,
+ bg = "white"
+)
+
+}
+
+density_scatter_plot(seurat_filtered, file.path(plotDir, paste0(study_id, "_postQC_density-scatter.png")))
+```
+
+```{r Keep only protein coding genes}
+protein_coding_genes <- readLines("C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/Protein_coding_genes.txt")
+
+# Subset BEFORE normalization
+seurat_filtered <- subset(seurat_filtered, features = protein_coding_genes)
+
+####  Explore Filtered Seurat Object after QC Filter  ####
+class(seurat_filtered)            # Seurat class
+Assays(seurat_filtered)           # assays available in the rds
+DefaultAssay(seurat_filtered)     # default/active assay in the rds
+dim(seurat_filtered)              # 16442 genes/features x 5405 cells
+```
+
+getwd()
+list.files("C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output")
+
+```{r}
+metadata <- read.csv("C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output/GSE279086_metadata.csv", header = TRUE, row.names = 1)
+metadata
+# Add GEO metadata to seurat metadata slot}
+# Extract current Seurat metadata and keep barcodes
+seurat_meta <- seurat_filtered@meta.data
+seurat_meta$barcode <- rownames(seurat_meta)  # store barcodes as a column
+
+# Merge by sample <-> geo_accession
+merged_meta <- merge(
+  seurat_meta,
+  metadata,
+  by.x = "sample",
+  by.y = "geo_accession",
+  all.x = TRUE
+)
+
+# Restore barcodes as rownames
+rownames(merged_meta) <- merged_meta$barcode
+merged_meta$barcode <- NULL 
+
+# Assign back to Seurat object
+seurat_filtered@meta.data <- merged_meta
+```
+
+
+```{r Save Filtered Seurat Object}
+saveRDS(seurat_filtered, file = paste0(outputDir,"02_GSE279086_seurat_qc_filtered.rds"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
