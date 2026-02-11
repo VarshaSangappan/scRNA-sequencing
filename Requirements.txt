@@ -3,7 +3,9 @@
 # -----------------------------------------
 # Install in R using : install.packages("<package>") or Biocmanager::install("<package>")
 #------------------------------------------
-#R Packages for QC and umap
+
+## R Packages for QC and umap
+
 Seurat
 SeuratDisk
 dplyr
@@ -21,7 +23,8 @@ batchelor
 zellkonverter
 SingleCellExperiment
 
-# R packages for DEG and pathway analysis
+## R packages for DEG and pathway analysis
+
 clusterProfiler
 ReactomePA
 tidyverse
@@ -31,8 +34,11 @@ ggplot2
 enrichplot
 
 #---------------------------------------------
-#Python packages 
+#Python packages
 #---------------------------------------------
+# Install Python packages using pip install <package>
+#---------------------------------------------
+
 pandas
 anndata
 numpy
@@ -43,7 +49,7 @@ celltypist
 
 #---------------------------------------------
 #MODEL
-#-------------------------------------------
+#---------------------------------------------
 Adult_human_kidney.pkl
 
 
