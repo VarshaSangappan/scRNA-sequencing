@@ -11,9 +11,11 @@ Complete workflow for **40 kidney samples** (DKD vs healthy) from NCBI GEO GSE27
 - `04_deg_pathway.Rmd` - DEG analysis + Reactome GSEA
 
 ## 📊 Key Results
-Total:     15k → 12k cells retained (83%)
-Clusters:  23 cell types (Harmony + CellTypist)
-T1D:       ↑PC/M-TAL markers, ↓EC-GC/C-TAL (tubular remodeling)
+
+- **Total**: 1,81,842 → 6,327 cells retained (QC)
+- **Clusters**: 23 cell types (Harmony + CellTypist)  
+- **T1D**: ↑PC/M-TAL markers, ↓EC-GC/C-TAL (tubular remodeling)
+
 
 ## 🚀 Quick Start
 ```bash
