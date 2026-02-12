@@ -8,8 +8,8 @@ Complete workflow for **40 kidney samples** (DKD vs healthy) from NCBI GEO GSE27
 ## 📊 Quality Control & Filtering
 
 ### QC Filtering
-- min.features = 200  # Exclude empty/low-quality droplets
 - min.cells = 3       # Retain informative genes only
+- min.features = 200  # Exclude empty/low-quality droplets
 - max.features = 7000 # Remove doublets/multiplets
 - percent.mt < 15%  # Exclude dying/apoptotic cells
 - percent.rb < 20%  # Exclude stressed cells
@@ -36,6 +36,7 @@ Captures biological signal, reduces technical noise.
 
 ### Dimensionality Reduction
 - PCA (1:100 dims) → Elbow plot (1:35) → UMAP (2D)
+
 35 PCs: Optimal dimensionality determined by elbow plot inflection point.
   
 ## 🛠️ Data Export
