@@ -4,30 +4,11 @@ output: html_document
 date: "2026-02-11"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ## R Markdown
 
 #-----------------------------------------------------------------------------------
 # Define the directories and load the Libraries
 #-----------------------------------------------------------------------------------
-
-```{r Load again the Filtered Seurat Object}
-seurat_filtered <- readRDS(file = paste0(outputDir, "02_GSE279086_seurat_qc_filtered.rds"))
-```
-
-
-```{r Standard workflow for normalization and scaling}
-cat("Normalizing data using LogNormalize method (scale factor = 10,000)...\n")
-seurat_processed <- NormalizeData(seurat_filtered,
-                                 normalization.method = "LogNormalize")  # What percentage of total RNA does each gene contribute in this cell?
-
-seurat_processed <- FindVariableFeatures(seurat_processed, selection.method = "vst", nfeatures = 2500)
-seurat_processed <- ScaleData(seurat_processed) 
-seurat_processed <- RunPCA(seurat_processed, dims=1:100, npcs = 100)
-```
 
 ```{r Load again the Filtered Seurat Object}
 seurat_filtered <- readRDS(file = paste0(outputDir, "02_GSE279086_seurat_qc_filtered.rds"))
@@ -77,7 +58,7 @@ harmony_processed <- RunUMAP(harmony_processed, reduction = "harmony", dims = 1:
 harmony_processed <- FindNeighbors(harmony_processed, reduction = "harmony", dims = 1:50, graph.name = "harmony_nn")
 
 harmony_processed <- FindClusters(harmony_processed, graph.name = "harmony_nn", resolution = 0.8, group.name = "Harmony_clusters")
-#found 22 clusters
+#found 25 clusters
 
 saveRDS(harmony_processed, file = paste0(outputDir,"04_GSE279086_harmony_corrected.rds"))
 #harmony_processed <- readRDS(file = paste0(outputDir, "04_GSE279086_harmony_corrected.rds"))
@@ -238,4 +219,5 @@ batch_cor_plot
 
 ggsave(filename = paste0(plotDir,"batch_correction_barplot_combined.png"), plot = batch_cor_plot, width = 23, height = 8, dpi = 300)
 ```
+
 
