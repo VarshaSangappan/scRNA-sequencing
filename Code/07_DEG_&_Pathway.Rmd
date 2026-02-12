@@ -71,16 +71,16 @@ celltypes
 
 ```{r}
 dir.create(
-  "C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output/DEG_MAST_T1D_vs_LC",
+  "~/GSE279086/bonus/output/DEG_MAST_T1D_vs_LC",
   recursive = TRUE,
   showWarnings = FALSE
 )
 
 run_mast_per_celltype_DKD_vs_Healthy <- function(
   seu,
-  celltype_col = "majority_voting",     # apna annotation column
+  celltype_col = "majority_voting",     
   condition_col = "Condition",   
-  outdir = "C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output/DEG_MAST_T1D_vs_LC",
+  outdir = "~/GSE279086/bonus/output/DEG_MAST_T1D_vs_LC",
   min_cells_per_group = 20
 ) {
 
@@ -171,7 +171,7 @@ library(dplyr)
 library(ggplot2)
 library(enrichplot)
 
-deg_path <- "C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output/DEG_MAST_T1D_vs_LC/"
+deg_path <- "~/GSE279086/bonus/output/DEG_MAST_T1D_vs_LC/"
 
 deg_files <- list.files(
   deg_path,
@@ -232,7 +232,7 @@ print(deg_summary)
 
 write.csv(
   deg_summary,
-  "C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output/DEG_MAST_T1D_vs_LC/DEGsummary_table.csv",
+  "~/GSE279086/bonus/output/DEG_MAST_T1D_vs_LC/DEGsummary_table.csv",
   row.names = FALSE
 )
 ```
@@ -426,6 +426,7 @@ for (ct in unique(all_pathways_df$CellType)) {
 }
 
 ```
+
 
 
 
