@@ -7,18 +7,15 @@ Complete workflow for **40 kidney samples** (DKD vs healthy) from NCBI GEO GSE27
 
 ## 📊 Quality Control & Filtering
 
-### Cell Quality Filtering
+### QC Filtering
 - min.features = 200  # Exclude empty/low-quality droplets
 - min.cells = 3       # Retain informative genes only
 - max.features = 7000 # Remove doublets/multiplets
-
-**Rationale**: Standard thresholds eliminate noise while preserving biology [Seurat v5].
-
-### QC Metrics
 - percent.mt < 15%  # Exclude dying/apoptotic cells
 - percent.rb < 20%  # Exclude stressed cells
+- Mahalanobis distance < 0.95 # Removes top 5% multivariate outliers.
 
-**Mahalanobis distance < 0.95**: Removes top 5% multivariate outliers.
+**Rationale**: Standard thresholds eliminate noise while preserving biology.
 
 ### Gene Filtering
 - Keep protein-coding genes only
@@ -38,8 +35,12 @@ Stabilizes variance across expression levels for visualization/clustering.
 Captures biological signal, reduces technical noise.
 
 ### Dimensionality Reduction
-- PCA (1:100 dims) → Elbow plot → UMAP (2D)
+- PCA (1:100 dims) → Elbow plot (1:35) → UMAP (2D)
+35 PCs: Optimal dimensionality determined by elbow plot inflection point.
+  
+## 🛠️ Data Export
 
+ **h5ad** : Standard for cross-platform scRNA-seq sharing (Scanpy, Squidpy); compressed, includes all layers/metadata.
 
 ## 🏷️ Cell Type Annotation
 CellTypist(kidney_reference, p_thres = 0.5)
@@ -56,7 +57,6 @@ min.cells = 20, # Computational efficiency
 only.pos = TRUE # Positive markers only
 )`
 
-
 **Wilcoxon rank-sum**: Gold standard for scRNA-seq DE testing.
 
 ## 🛤️ Pathway Enrichment
@@ -65,16 +65,7 @@ only.pos = TRUE # Positive markers only
 Identifies dysregulated pathways in disease clusters.
 
 
-
-
-## 📊 Key Results
-
-- **Total**: 1,81,842 → 6,327 cells retained (QC)
-- **Clusters**: 23 cell types (Harmony + CellTypist)  
-- **T1D**: ↑PC/M-TAL markers, ↓EC-GC/C-TAL (tubular remodeling)
-
-
 ## 🚀 Quick Start
 ```bash
 renv::restore()
-Rscript -e "rmarkdown::render('analysis/01_seurat.Rmd')"
+Rscript -e "rmarkdown::render('Code/01_seurat.Rmd')"
