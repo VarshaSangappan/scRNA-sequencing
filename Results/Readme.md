@@ -14,3 +14,20 @@
 | **EC DVR** | 27 | 18 | **45** | **Vascular remodeling** - hemodynamic stress |
 | **VSMC-P** | 22 | 15 | **37** | **Smooth muscle activation** - vessel wall changes |
 
+## Cell Types:
+
+- Immune: ↑ Myeloid & NK activation
+
+- Endothelial: Dysfunction (EC-LYM, EC-DVR)
+
+- Tubular: Segment changes (aTAL, dTAL, DCT, PT)
+
+- Podocytes: Stress genes ↑ (early injury)
+
+## Pathways:
+
+- Immune: ER-Phagosome, Antigen processing-Cross presentation
+
+- Stress: ER stress/ERAD
+
+- Cell cycle: G2/M checkpoint progression
