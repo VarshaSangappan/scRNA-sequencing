@@ -8,37 +8,37 @@ Complete workflow for **40 kidney samples** (DKD vs healthy) from NCBI GEO GSE27
 ## 📊 Quality Control & Filtering
 
 ### Cell Quality Filtering
-- min.features = 200 # Exclude empty/low-quality droplets
-- min.cells = 3 # Retain informative genes only
+- min.features = 200  # Exclude empty/low-quality droplets
+- min.cells = 3       # Retain informative genes only
 - max.features = 7000 # Remove doublets/multiplets
 
 **Rationale**: Standard thresholds eliminate noise while preserving biology [Seurat v5].
 
 ### QC Metrics
-percent.mt < 15% # Exclude dying/apoptotic cells
-percent.rb < 20% # Exclude stressed cells
+- percent.mt < 15%  # Exclude dying/apoptotic cells
+- percent.rb < 20%  # Exclude stressed cells
 
 **Mahalanobis distance < 0.95**: Removes top 5% multivariate outliers.
 
 ### Gene Filtering
-Keep protein-coding genes only
+- Keep protein-coding genes only
 
 Focuses on functional genes, removes non-coding noise.
 
 ## 🔬 Data Processing Pipeline
 
 ### Normalization & Scaling
-SCTransform() + log-normalization
+- SCTransform() + log-normalization
 
 Stabilizes variance across expression levels for visualization/clustering.
 
 ### Feature Selection
-FindVariableFeatures(top 2500 HVGs)
+- FindVariableFeatures(top 2500 HVGs)
 
 Captures biological signal, reduces technical noise.
 
 ### Dimensionality Reduction
-PCA (1:100 dims) → Elbow plot → UMAP (2D)
+- PCA (1:100 dims) → Elbow plot → UMAP (2D)
 
 
 ## 🏷️ Cell Type Annotation
@@ -48,19 +48,19 @@ CellTypist(kidney_reference, p_thres = 0.5)
 - Majority voting + probability threshold ≥0.5 for confident classification
 
 ## 🎯 Differential Expression Analysis
-FindAllMarkers(
+`FindAllMarkers(
 test.use = "wilcox",
 min.pct = 0.25, # ≥25% cells in either cluster
 logfc.threshold = 0.25, # Biologically meaningful change
 min.cells = 20, # Computational efficiency
 only.pos = TRUE # Positive markers only
-)
+)`
 
 
 **Wilcoxon rank-sum**: Gold standard for scRNA-seq DE testing.
 
 ## 🛤️ Pathway Enrichment
-ReactomeGSEA(Entrez IDs + human annotation)
+- ReactomeGSEA(Entrez IDs + human annotation)
 
 Identifies dysregulated pathways in disease clusters.
 
