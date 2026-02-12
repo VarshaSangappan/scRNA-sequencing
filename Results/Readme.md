@@ -2,7 +2,6 @@
 
 **40 kidney samples** (T1D/DKD vs LC/healthy)  
 **181,842 → 6,327 cells** (96.5% QC improvement)
-
 **35 PCs** (elbow-validated)
 
 ## 🧬 Key Findings 
