@@ -7,10 +7,10 @@
 
 ## 🧬 Key Findings 
 
-| Cell Type | Total DEGs | Interpretation |
-|-----------|------------|----------------|
-| **Principal Cells** | **273** | Strongest disease response |
-| **EC+PTC** | **57** | Endothelial-tubule crosstalk |
-| **EC DVR** | **45** | Vascular remodeling |
-| **VSMC-P** | **37** | Smooth muscle changes |
+| Cell Type | ↑ Upregulated | ↓ Downregulated | Total DEGs | **Biological Interpretation** |
+|-----------|---------------|-----------------|------------|------------------------------|
+| **Principal Cells** | **146** | **127** | **273** | **Strongest DKD response** - fibrosis/inflammation driver |
+| **EC+PTC** | 22 | 35 | **57** | **Endothelial-tubule dysfunction** - vascular injury |
+| **EC DVR** | 27 | 18 | **45** | **Vascular remodeling** - hemodynamic stress |
+| **VSMC-P** | 22 | 15 | **37** | **Smooth muscle activation** - vessel wall changes |
 
