@@ -8,9 +8,9 @@ Complete workflow for **40 kidney samples** (DKD vs healthy) from NCBI GEO GSE27
 ## 📊 Quality Control & Filtering
 
 ### Cell Quality Filtering
-min.features = 200 # Exclude empty/low-quality droplets
-min.cells = 3 # Retain informative genes only
-max.features = 7000 # Remove doublets/multiplets
+- min.features = 200 # Exclude empty/low-quality droplets
+- min.cells = 3 # Retain informative genes only
+- max.features = 7000 # Remove doublets/multiplets
 
 **Rationale**: Standard thresholds eliminate noise while preserving biology [Seurat v5].
 
