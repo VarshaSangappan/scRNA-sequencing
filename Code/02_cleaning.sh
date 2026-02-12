@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Base directory containing all GSM folders
-BASE_DIR="/mnt/c/Users/Varsha/Documents/rna_seq/GSE279086/raw_geo_data"
+BASE_DIR="~/GSE279086/raw_geo_data"
 
 # Expand ~ manually
 BASE_DIR=$(eval echo "$BASE_DIR")
