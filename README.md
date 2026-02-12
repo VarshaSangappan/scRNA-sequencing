@@ -4,12 +4,9 @@ Complete workflow for **40 kidney samples** (DKD vs healthy) from NCBI GEO GSE27
 
 **LC** = Lean Control (healthy) | **T1D** = Type 1 Diabetes (DKD)
 
-## 🧬 Workflow (4 Files)
-- `01_download.sh` - Downloading and cleaning data 
-- `01_RDS.Rmd` - Retrieve data from GEO + Create Seurat object 
-- `02_seurat_umap.Rmd` -  QC + filtering + umap + Harmony clustering
-- `03_celltypist.ipynb` - CellTypist annotation + majority voting
-- `04_deg_pathway.Rmd` - DEG analysis + Reactome GSEA
+## 🧬 WORKLOW
+-
+
 
 ## 📊 Key Results
 
