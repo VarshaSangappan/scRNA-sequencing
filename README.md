@@ -8,12 +8,15 @@ Complete workflow for **40 kidney samples** (DKD vs healthy) from NCBI GEO GSE27
 ## 📊 Quality Control & Filtering
 
 ### QC Filtering
-- min.cells = 3       # Retain informative genes only
-- min.features = 200  # Exclude empty/low-quality droplets
-- max.features = 7000 # Remove doublets/multiplets
-- percent.mt < 15%  # Exclude dying/apoptotic cells
-- percent.rb < 20%  # Exclude stressed cells
-- Mahalanobis distance < 0.95 # Removes top 5% multivariate outliers.
+
+| Metric | Threshold | Rationale |
+|--------|-----------|-----------|
+| `min.cells` | 3 | Retain informative genes |
+| `min.features` | 200 | Exclude empty droplets |
+| `max.features` | **7000** | Remove doublets |
+| `percent.mt` | **<15%** | Exclude dying cells |
+| `percent.rb` | **<20%** | Exclude stressed cells |
+| Mahalanobis | **<0.95** | Remove top 5% outliers |
 
 **Rationale**: Standard thresholds eliminate noise while preserving biology.
 
