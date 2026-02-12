@@ -448,7 +448,7 @@ density_scatter_plot(seurat_filtered, file.path(plotDir, paste0(study_id, "_post
 ```
 
 ```{r Keep only protein coding genes}
-protein_coding_genes <- readLines("C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/Protein_coding_genes.txt")
+protein_coding_genes <- readLines("~/GSE279086/bonus/Protein_coding_genes.txt")
 
 # Subset BEFORE normalization
 seurat_filtered <- subset(seurat_filtered, features = protein_coding_genes)
@@ -461,10 +461,10 @@ dim(seurat_filtered)              # 16442 genes/features x 5405 cells
 ```
 
 getwd()
-list.files("C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output")
+list.files("~/GSE279086/bonus/output")
 
 ```{r}
-metadata <- read.csv("C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output/GSE279086_metadata.csv", header = TRUE, row.names = 1)
+metadata <- read.csv("~/GSE279086/bonus/output/GSE279086_metadata.csv", header = TRUE, row.names = 1)
 metadata
 # Add GEO metadata to seurat metadata slot}
 # Extract current Seurat metadata and keep barcodes
@@ -492,6 +492,7 @@ seurat_filtered@meta.data <- merged_meta
 ```{r Save Filtered Seurat Object}
 saveRDS(seurat_filtered, file = paste0(outputDir,"02_GSE279086_seurat_qc_filtered.rds"))
 ```
+
 
 
 
