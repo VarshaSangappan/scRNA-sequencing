@@ -46,7 +46,7 @@ declare -A samples=(
 )
 
 # Base URL for GEO sample supplemental files
-BASE_URL="https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE279086&format=file"
+BASE_URL="https://ftp.ncbi.nlm.nih.gov/geo/samples"
 
 # Files to download per GSM
 FILES=(
