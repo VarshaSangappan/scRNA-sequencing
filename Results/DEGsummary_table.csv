@@ -1,0 +1,16 @@
+"CellType","Upregulated","Downregulated","Total_DEGs"
+"DEG_PC_T1D_vs_LC.csv",146,127,273
+"DEG_EC_PTC_T1D_vs_LC.csv",22,35,57
+"DEG_EC_DVR_T1D_vs_LC.csv",27,18,45
+"DEG_VSMC_P_T1D_vs_LC.csv",22,15,37
+"DEG_DTL_T1D_vs_LC.csv",0,2,2
+"DEG_EC_GC_T1D_vs_LC.csv",1,1,2
+"DEG_CNT_T1D_vs_LC.csv",0,1,1
+"DEG_aTAL_T1D_vs_LC.csv",0,0,0
+"DEG_C_TAL_T1D_vs_LC.csv",0,0,0
+"DEG_DCT_T1D_vs_LC.csv",0,0,0
+"DEG_dVSMC_T1D_vs_LC.csv",0,0,0
+"DEG_EC_AEA_T1D_vs_LC.csv",0,0,0
+"DEG_PEC_T1D_vs_LC.csv",0,0,0
+"DEG_Podocytes_T1D_vs_LC.csv",0,0,0
+"DEG_PT_T1D_vs_LC.csv",0,0,0
