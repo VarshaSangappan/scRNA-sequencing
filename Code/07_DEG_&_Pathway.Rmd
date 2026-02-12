@@ -3,23 +3,16 @@ title: "scRNA_DEG & Pathway"
 output: html_document
 date: "2026-02-10"
 ---
-
-
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-
+#-------------------------------------------
+# Define the directories
+#--------------------------------------------
 
 ```{r}
 library(zellkonverter)
 library(SingleCellExperiment)
 library(Seurat)
 library(MAST)
-sce <- readH5AD("C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output/GSE279086_celltypist.h5ad")
+sce <- readH5AD("~/GSE279086/bonus/output/GSE279086_celltypist.h5ad")
 
 seurat_obj <- as.Seurat(
   sce,
@@ -27,7 +20,7 @@ seurat_obj <- as.Seurat(
   data = "logcounts"
 )
 
-saveRDS(seurat_obj, "C:/Users/VARSHA/Documents/rna_seq/GSE279086/bonus/output/GSE279086_with_celltypist.rds")
+saveRDS(seurat_obj, "~/GSE279086/bonus/output/GSE279086_with_celltypist.rds")
 
 
 # after reading .h5ad and storing it in 'sce', u will see somthing like this:
@@ -426,6 +419,7 @@ for (ct in unique(all_pathways_df$CellType)) {
 }
 
 ```
+
 
 
 
